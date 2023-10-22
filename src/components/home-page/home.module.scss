@@ -1,0 +1,15 @@
+@import "/node_modules/bootstrap/scss/functions";
+@import "/node_modules/bootstrap/scss/variables";
+@import "/node_modules/bootstrap/scss/mixins";
+
+.imageHeight {
+  width: 100%;
+  height: 110px;
+}
+
+@include media-breakpoint-up(xl) {
+  .imageHeight {
+    width: 100%;
+    height: 140px;
+  }
+}

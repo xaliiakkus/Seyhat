@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /checkout
+Disallow: /search
+Disallow: *?term=
+
+Sitemap: https://travelshopbooking.com/sitemap.xml
+allow

@@ -1,0 +1,25 @@
+@import "/node_modules/bootstrap/scss/functions";
+@import "/node_modules/bootstrap/scss/variables";
+@import "/node_modules/bootstrap/scss/mixins";
+
+.searchbar {
+  width: 100% !important;
+  margin-top: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+@include media-breakpoint-up(md) {
+  .searchbar {
+    width: 350px !important;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  .searchbar {
+    width: 450px !important;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+  }
+}

@@ -1,0 +1,91 @@
+image: node:16.14.0
+
+options:
+  docker: true
+
+definitions:
+  services:
+    docker:
+      memory: 7128
+
+pipelines:
+  branches:
+    "*":
+      - step:
+          name: Next (build & push)
+          size: 2x
+          script:
+            # TODO: CREATE TAG
+            - TAG="travelshopturkey/next:${BITBUCKET_COMMIT::7}"
+            # TODO: DOCKER LOGIN
+            - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+            - docker login -u "${DOCKERHUB_USERNAME}" -p "${DOCKERHUB_PASSWORD}" docker.io
+            # TODO: DOCKER BUILD & PUSH
+            - docker build . --file ./docker/local/Dockerfile --tag ${TAG}
+            - docker push "${TAG}"
+          services:
+            - docker
+    development:
+      - step:
+          name: Next (build & push)
+          size: 2x
+          script:
+            # TODO: CREATE TAG
+            - TAG="travelshopturkey/next:${BITBUCKET_COMMIT::7}-dev"
+            - TAG_LATEST="travelshopturkey/next:latest-dev"
+            # TODO: DOCKER LOGIN
+            - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+            - docker login -u "${DOCKERHUB_USERNAME}" -p "${DOCKERHUB_PASSWORD}" docker.io
+            # TODO: DOCKER BUILD & PUSH
+            - docker build . --file ./docker/local/Dockerfile --tag ${TAG}
+            - docker push "${TAG}"
+            - docker tag "${TAG}" "${TAG_LATEST}"
+            - docker push "${TAG_LATEST}"
+          services:
+            - docker
+      - step:
+          name: Deploy
+          deployment: Dev
+          size: 2x
+          script:
+            # TODO: CREATE TAG
+            - TAG="${BITBUCKET_COMMIT::7}-dev"
+            # TODO: DEPS INSTALL
+            - apt-get update
+            - apt-get -y install rsync sshpass
+            # TODO: --------------------------------- DEPLOY SERVER ---------------------------------
+            - timeout 600s sshpass -p $SERVER_PASSWORD ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP " cd ~/next-dev; make build_tag TAG=${TAG} "
+          services:
+            - docker
+    master:
+      - step:
+          name: Next (build & push)
+          size: 2x
+          script:
+            # TODO: CREATE TAG
+            - TAG="travelshopturkey/next:${BITBUCKET_COMMIT::7}"
+            - TAG_LATEST="travelshopturkey/next:latest"
+            # TODO: DOCKER LOGIN
+            - echo ${DOCKERHUB_PASSWORD} | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+            - docker login -u "${DOCKERHUB_USERNAME}" -p "${DOCKERHUB_PASSWORD}" docker.io
+            # TODO: DOCKER BUILD & PUSH
+            - docker build . --file ./docker/prod/Dockerfile --tag ${TAG}
+            - docker push "${TAG}"
+            - docker tag "${TAG}" "${TAG_LATEST}"
+            - docker push "${TAG_LATEST}"
+          services:
+            - docker
+      - step:
+          name: Deploy
+          deployment: Production
+          size: 2x
+          script:
+            # TODO: CREATE TAG
+            - TAG="${BITBUCKET_COMMIT::7}"
+            # TODO: DEPS INSTALL
+            - apt-get update
+            - apt-get -y install rsync sshpass
+            # TODO: --------------------------------- DEPLOY SERVER ---------------------------------
+            - timeout 600s sshpass -p $SERVER_PASSWORD ssh -o StrictHostKeyChecking=no $SERVER_USERNAME@$SERVER_IP " cd ~/next; make build_tag TAG=${TAG} "
+          services:
+            - docker

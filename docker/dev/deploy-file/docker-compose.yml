@@ -1,0 +1,28 @@
+version: "3.4"
+
+services:
+  next:
+    image: ${TAG}
+    container_name: travelshop-next-dev
+    networks:
+      - nt-travelshop-next-dev
+    restart: always
+    stdin_open: true
+    tty: true
+    volumes:
+      - nt-travelshop-next-dev:/var/www/app:rw
+      - ./env/.env:/var/www/app/.env:rw
+    ports:
+      - "7006:3000"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8000M
+        reservations:
+          cpus: '3.5'
+          memory: 7500M
+
+networks:
+  nt-travelshop-next-dev:
+    driver: bridge
